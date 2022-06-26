@@ -5,10 +5,18 @@ import java.util.*;
 // https://leetcode.com/problems/contains-duplicate/
 public class ContainsDuplicate {
     public boolean containsDuplicate(int[] nums) {
-        HashSet<Integer> set = new HashSet<Integer>();
-        for (int i = 0; i < nums.length; i++) {
-            if (!set.add(nums[i])) return true; // 이미 들어있는 요소의 경우 add()는 false를 리턴한다
+        if (nums == null || nums.length < 2) {
+            return false;
         }
+
+        Arrays.sort(nums);  // O(nlogn)
+
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] == nums[i - 1]) {
+                return true;
+            }
+        }
+
         return false;
     }
 }
