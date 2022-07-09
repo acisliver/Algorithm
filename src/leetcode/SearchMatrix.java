@@ -1,26 +1,31 @@
 package leetcode;
 
 // https://leetcode.com/problems/search-a-2d-matrix/
-// 단순 구현
+// Binary Search
 public class SearchMatrix {
     public static void main(String[] args) {
         System.out.println(new SearchMatrix().searchMatrix(new int[][]{{1}}, 0));
     }
 
     public boolean searchMatrix(int[][] matrix, int target) {
-        int start = 0;
 
-        for (int i = matrix.length - 1; i >= 0; i--) {
-            if (matrix[i][0] <= target) {
-                start = i;
-                break;
+        int left = 0;
+        int right = matrix.length * matrix[0].length - 1;
+
+        while(left <= right) {
+            int mid = (left + right) >>> 1;
+            int row = mid / matrix[0].length;
+            int col = mid % matrix[0].length;
+            int midVal = matrix[row][col];
+
+
+            if (midVal < target) {
+                left = mid + 1;
+            } else if (midVal > target){
+                right = mid - 1;
+            } else {
+                return true;
             }
-        }
-
-        for (int i = 0; i < matrix[start].length; i++) {
-            if (matrix[start][i] == target) return true;
-
-            if (matrix[start][i] > target) return false;
         }
 
         return false;
