@@ -2,6 +2,8 @@ package kakao.blind2022;
 
 import java.util.Arrays;
 
+// https://school.programmers.co.kr/learn/courses/30/lessons/92335
+// 구현
 class Solution2 {
 
     public int solution(int n, int k) {
