@@ -21,7 +21,7 @@ public class N2342 {
                 .map(FootBoard::footBoardFromNumber)
                 .collect(Collectors.toList());
         int steps = FootBoard.values().length;
-        DP = new int[SEQUENCE.size()][steps][steps];
+        DP = new int[SEQUENCE.size() - 1][steps][steps];
 
         int answer = dfs(FootBoard.START, FootBoard.START, 0);
 
@@ -30,14 +30,14 @@ public class N2342 {
 
     private static int dfs(FootBoard leftFoot, FootBoard rightFoot, int step) {
 
-        // 이미 초기화된 경우 가지치기
-        if (DP[step][leftFoot.getNumber()][rightFoot.getNumber()] != 0) {
-            return DP[step][leftFoot.getNumber()][rightFoot.getNumber()];
-        }
-
         // 마지막까지 탐색후 종료
         if (step == SEQUENCE.size() - 1) {
             return 0;
+        }
+
+        // 이미 초기화된 경우 가지치기
+        if (DP[step][leftFoot.getNumber()][rightFoot.getNumber()] != 0) {
+            return DP[step][leftFoot.getNumber()][rightFoot.getNumber()];
         }
 
         FootBoard next = SEQUENCE.get(step);
