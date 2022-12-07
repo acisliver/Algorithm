@@ -40,6 +40,11 @@ public class N2342 {
             return DP[step][leftFoot.getNumber()][rightFoot.getNumber()];
         }
 
+        // 발을 바꾼 경우에 이미 초기화된 경우 가지치기
+        if (DP[step][rightFoot.getNumber()][leftFoot.getNumber()] != 0) {
+            return DP[step][rightFoot.getNumber()][leftFoot.getNumber()];
+        }
+
         FootBoard next = SEQUENCE.get(step);
 
         // 왼발 이동
