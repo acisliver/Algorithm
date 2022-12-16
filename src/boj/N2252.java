@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 // 줄 세우기
 // https://www.acmicpc.net/problem/2252
@@ -16,7 +17,13 @@ public class N2252 {
         int N = Integer.parseInt(input[0]);
         int M = Integer.parseInt(input[1]);
 
-        Students students = new Students(N);
+        List<List<Integer>> graph = new ArrayList<>();  // 학생 간 앞뒤 관계 그래프로 표현
+        List<Integer> indegree = new ArrayList<>();     // 각 학생의 진입차수
+
+        for (int i = 0; i < N; i++) {
+            graph.add(new LinkedList<>());
+            indegree.add(0);
+        }
 
         for (int i = 0; i < M; i++) {
 
@@ -24,67 +31,38 @@ public class N2252 {
                     .mapToInt(Integer::parseInt)
                     .toArray();
 
-            int previousNumber = numbers[0];
-            int nextNumber = numbers[1];
+            int previousNumber = numbers[0] - 1;
+            int nextNumber = numbers[1] - 1;
 
-            students.setPreviousStudent(previousNumber, nextNumber);
+            graph.get(previousNumber).add(nextNumber);
+            indegree.set(nextNumber, indegree.get(nextNumber) + 1);
         }
 
-        Queue<Student> queue = new LinkedList<>();
+        Queue<Integer> queue = new LinkedList<>();
         List<Integer> answer = new ArrayList<>();
-        Student firstStudent = students.getFirstStudent();
-        queue.offer(firstStudent);
-        answer.add(firstStudent.number);
 
+        // 진입 차수가 0인 학생 큐에 넣기
+        IntStream.range(0, indegree.size())
+                .filter(index -> indegree.get(index) == 0)
+                .forEach(queue::offer);
+
+        // 위상 정렬
         while (!queue.isEmpty()) {
-            Student curStudent = queue.poll();
+            Integer curNumber = queue.poll();
+            answer.add(curNumber + 1);
 
-            for (Student nextStudent : curStudent.previousStudents) {
-                queue.offer(nextStudent);
-                answer.add(curStudent.number);
+            List<Integer> nextNumbers = graph.get(curNumber);
+
+            for (Integer number : nextNumbers) {
+                indegree.set(number, indegree.get(number) - 1);
+
+                if (indegree.get(number) == 0) {
+                    queue.offer(number);
+                }
             }
         }
 
         System.out.println(answer.stream().map(String::valueOf).collect(Collectors.joining(" ")));
     }
-
-    static class Students {
-
-        List<Student> students = new ArrayList<>();
-
-        Students(int count) {
-            for (int number = 1; number <= count; number++) {
-                students.add(new Student(number));
-            }
-        }
-
-        public void setPreviousStudent(int previousNumber, int nextNumber) {
-            Student previousStudent = students.get(previousNumber - 1);
-            Student nextStudent = students.get(nextNumber - 1);
-            nextStudent.setPreviousStudent(previousStudent);
-        }
-
-        public Student getFirstStudent() {
-            return students.stream()
-                    .filter(student -> student.previousStudents.size() == 0)
-                    .findFirst()
-                    .orElse(null);
-        }
-    }
-
-    static class Student {
-
-        int number;
-        Set<Student> previousStudents = new HashSet<>();
-
-        Student(int number) {
-            this.number = number;
-        }
-
-        void setPreviousStudent(Student previousStudent) {
-            previousStudents.add(previousStudent);
-        }
-    }
-
 
 }
