@@ -28,11 +28,11 @@ public class N2792 {
             max = Math.max(max, jewelry[i]);
         }
 
-        int lo = 1;
-        int hi = max;
+        int lo = 0;
+        int hi = max + 1;
         int sum;
         int answer = 0;
-        while (lo <= hi) {
+        while (lo + 1< hi) {
             int mid = (lo + hi) >>> 1;
             sum = 0;
             for (int i = 0; i < m; i++) {   // mid를 최대로 몇 명에게 나눠줄 수 있는지
@@ -42,9 +42,9 @@ public class N2792 {
                 }
             }
 
-            if (sum > n) {
+            if (sum > n) {  // 질투심이 더 커야한다.
                 lo = mid + 1;
-            } else {
+            } else {        // 질투심이 더 작아도 될거 같다.
                 hi = mid - 1;
                 answer = mid;
             }
