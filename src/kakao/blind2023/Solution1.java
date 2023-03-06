@@ -1,11 +1,13 @@
 package kakao.blind2023;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+// 개인정보 수집 유효기간
+// https://school.programmers.co.kr/learn/courses/30/lessons/150370?language=java
+import java.util.*;
 
 public class Solution1 {
+    
+    private static final int YEAR = 12;
+    private static final int DAY = 28;
 
     public static void main(String[] args) {
         Solution1 s = new Solution1();
@@ -16,28 +18,16 @@ public class Solution1 {
     public int[] solution(String today, String[] terms, String[] privacies) {
         List<Integer> answer = new LinkedList<>();
 
-        HashMap<String, Integer> termMap = new HashMap<>();
-        List<Date> dateList = new LinkedList<>();
-        String[] todayArr = today.split("\\.");
-
+        Map<String, Integer> termMap = new HashMap<>();
 
         for (String term : terms) {
             String[] t = term.split(" ");
             termMap.put(t[0], Integer.valueOf(t[1]));
         }
 
-        for (String privacy : privacies) {
-            String[] a = privacy.split(" ");
-            String[] date = a[0].split("\\.");
-            String type = a[1];
-
-            Date cur = new Date(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
-            cur.addMonth(termMap.get(type));
-            dateList.add(cur);
-        }
-
-        for (int i = 0; i < dateList.size(); i++) {
-            if (isFire(todayArr, dateList.get(i))) {
+        for (int i = 0; i < privacies.length; i++) {
+            String privacy = privacies[i];
+            if (isFire(privacy, termMap, today)) {
                 answer.add(i + 1);
             }
         }
@@ -45,45 +35,28 @@ public class Solution1 {
         return answer.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    public boolean isFire(String[] todayArr, Date date) {
+    private boolean isFire(String privacy, Map<String, Integer> term, String today) {
+        String[] split = privacy.split(" ");
+        String date = split[0];
+        String type = split[1];
+        int days = getDays(date);
+        int fireDays = getFireDays(days, type, term);
 
-        int tYear = Integer.parseInt(todayArr[0]);
-        int tMonth = Integer.parseInt(todayArr[1]);
-        int tDay = Integer.parseInt(todayArr[2]);
-
-        if (tYear < date.year) {
-            return false;
-        } else if (tYear == date.year) {
-            if (tMonth < date.month) {
-                return false;
-            } else if (tMonth == date.month) {
-                if (tDay < date.day) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return fireDays <= getDays(today);
     }
 
-    public class Date {
-        public int year;
-        public int month;
-        public int day;
+    private int getDays(String date) {
+        String[] a = date.split("\\.");
+        int year = Integer.parseInt(a[0]);
+        int month = Integer.parseInt(a[1]);
+        int day = Integer.parseInt(a[2]);
 
-        public Date(int year, int month, int day) {
-            this.year = year;
-            this.month = month;
-            this.day = day;
-        }
-
-        public void addMonth(int month) {
-            this.month += month;
-
-            while (this.month > 12) {
-                this.month -= 12;
-                this.year++;
-            }
-        }
+        return (year * YEAR * DAY) + (month * DAY) + day;
     }
+
+    private int getFireDays(int days, String type, Map<String, Integer> term) {
+        int expirationDays = term.get(type) * DAY;
+        return days + expirationDays;
+    }
+
 }
