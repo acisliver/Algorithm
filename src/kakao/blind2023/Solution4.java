@@ -1,47 +1,82 @@
 package kakao.blind2023;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+// 표현 가능한 이진트리
+// https://school.programmers.co.kr/learn/courses/30/lessons/150367
 class Solution4 {
     public static void main(String[] args) {
         Solution4 solution4 = new Solution4();
-        System.out.println(Arrays.toString(solution4.solution(new long[]{63, 111, 95})));
+        System.out.println(Arrays.toString(solution4.solution(new long[]{423})));
     }
 
     public int[] solution(long[] numbers) {
-        int[] answer = new int[numbers.length];
+        List<Integer> answer = new ArrayList<>();
 
-        for (int a = 0; a < numbers.length; a++) {
-            long number = numbers[a];
-            String binary = Long.toBinaryString(number);
-            int len = binary.length();
-            int possible = 1;
-
-            if (len % 2 == 0) {
-                for (int i = 0; i < binary.length(); i++) {
-                    char bit = binary.charAt(i);
-                    if (i % 2 == 0) {
-                        if (bit != '1') {
-                            possible = 0;
-                            break;
-                        }
-                    }
-                }
+        for (long number : numbers) {
+            if (isBinaryTree(number)) {
+                answer.add(1);
             } else {
-                for (int i = 0; i < binary.length(); i++) {
-                    char bit = binary.charAt(i);
-                    if (i % 2 == 1) {
-                        if (bit != '1') {
-                            possible = 0;
-                            break;
-                        }
-                    }
-                }
+                answer.add(0);
             }
-
-            answer[a] = possible;
         }
 
-        return answer;
+        return answer.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private boolean isBinaryTree(long number) {
+        String binary = Long.toBinaryString(number);
+        String fullBinary = getFullBinary(binary);
+        int len = fullBinary.length();
+
+        int root = len / 2;
+
+        if (fullBinary.charAt(root) == '0') {
+            return false;
+        }
+
+        return isBinaryTree(fullBinary.substring(0, root)) && isBinaryTree(fullBinary.substring(root + 1));
+    }
+
+    private String getFullBinary(String binary) {
+
+        int length = binary.length();
+        int nodeCount = 1;
+        int level = 1;
+        while (length > nodeCount) {
+            level *= 2;
+            nodeCount += level;
+        }
+
+        int offset = nodeCount - length;
+        return "0".repeat(offset) + binary;
+    }
+
+    private boolean isBinaryTree(String binary) {
+        int len = binary.length();
+        if (binary.length() == 0) return true;
+
+        int root = len / 2;
+
+        if (binary.charAt(root) == '0') {
+            return isZeroTree(binary.substring(0, root)) && isZeroTree(binary.substring(root + 1));
+        }
+
+        return isBinaryTree(binary.substring(0, root)) && isBinaryTree(binary.substring(root + 1));
+    }
+
+    private boolean isZeroTree(String binary) {
+        int len = binary.length();
+        if (binary.length() == 0) return true;
+
+        int root = len / 2;
+
+        if (binary.charAt(root) == '1') {
+            return false;
+        }
+
+        return isZeroTree(binary.substring(0, root)) && isZeroTree(binary.substring(root + 1));
     }
 }
