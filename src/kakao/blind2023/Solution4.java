@@ -32,12 +32,14 @@ class Solution4 {
         int len = fullBinary.length();
 
         int root = len / 2;
+        String leftSubTree = fullBinary.substring(0, root);
+        String rightSubTree = fullBinary.substring(root + 1);
 
         if (fullBinary.charAt(root) == '0') {
             return false;
         }
 
-        return isBinaryTree(fullBinary.substring(0, root)) && isBinaryTree(fullBinary.substring(root + 1));
+        return isBinaryTree(leftSubTree) && isBinaryTree(rightSubTree);
     }
 
     private String getFullBinary(String binary) {
@@ -59,12 +61,14 @@ class Solution4 {
         if (binary.length() == 0) return true;
 
         int root = len / 2;
+        String leftSubTree = binary.substring(0, root);
+        String rightSubTree = binary.substring(root + 1);
 
         if (binary.charAt(root) == '0') {
-            return isZeroTree(binary.substring(0, root)) && isZeroTree(binary.substring(root + 1));
+            return isZeroTree(leftSubTree) && isZeroTree(rightSubTree);
         }
 
-        return isBinaryTree(binary.substring(0, root)) && isBinaryTree(binary.substring(root + 1));
+        return isBinaryTree(leftSubTree) && isBinaryTree(rightSubTree);
     }
 
     private boolean isZeroTree(String binary) {
@@ -72,11 +76,13 @@ class Solution4 {
         if (binary.length() == 0) return true;
 
         int root = len / 2;
+        String leftSubTree = binary.substring(0, root);
+        String rightSubTree = binary.substring(root + 1);
 
         if (binary.charAt(root) == '1') {
             return false;
         }
 
-        return isZeroTree(binary.substring(0, root)) && isZeroTree(binary.substring(root + 1));
+        return isZeroTree(leftSubTree) && isZeroTree(rightSubTree);
     }
 }
