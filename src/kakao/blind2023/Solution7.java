@@ -11,19 +11,21 @@ public class Solution7 {
                         {2, 4}, {1, 2}, {6, 8}, {1, 3}, {5, 7}, {2, 5}, {3, 6}, {6, 10}, {6, 9}
                 }, new int[]{0, 0, 0, 3, 0, 0, 5, 1, 2, 3}
         )));
-        System.out.println(Arrays.toString(
-                s.solution(new int[][]{{1, 2}, {1, 3}}, new int[]{0, 7, 3})
-        ));
+//        System.out.println(Arrays.toString(
+//                s.solution(new int[][]{{1, 2}, {1, 3}}, new int[]{0, 7, 3})
+//        ));
     }
 
-    static List<List<Integer>> tree = new ArrayList<>();
+    static List<LinkedList<Integer>> tree = new ArrayList<>();
     static List<Integer> answer = List.of(-1);
-    static List<Integer> DP = new ArrayList<>();
+    static int size = Integer.MAX_VALUE;
+    static int[] DP = new int[10004];
+    static int caseCount;
 
     public int[] solution(int[][] edges, int[] target) {
 
         for (int i = 0; i <= edges.length + 1; i++) {
-            tree.add(new ArrayList<>());
+            tree.add(new LinkedList<>());
         }
 
         for (int[] edge : edges) {
@@ -32,39 +34,80 @@ public class Solution7 {
             tree.get(from).add(to);
         }
 
-        for (List<Integer> list : tree) {
+        caseCount = getCaseCount();
+
+        for (LinkedList<Integer> list : tree) {
             list.sort(Integer::compareTo);
         }
 
-        search(1, target, new LinkedList<>());
+        solve(0, target, new LinkedList<>());
 
         return answer.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    private void search(int curNode, int[] target, List<Integer> falls) {
+    private int getCaseCount() {
+        int caseCount = 1;
+        for (LinkedList<Integer> nodes : tree) {
+            if (nodes.size() > 0) {
+                caseCount *= nodes.size();
+            }
+        }
+        return caseCount;
+    }
+
+    private void solve(int th, int[] target, LinkedList<Integer> drops) {
+
+        int[] numbers = {3, 2, 1};
+
+        if (th > size) return;
 
         if (isEnd(target)) {
-            updateAnswer(falls);
+            updateAnswer(drops);
             return;
         }
 
-        for (Integer nextNode : tree.get(curNode)) {
+        for (int number : numbers) {
 
+            if (DP[th % caseCount] != 0) {
+                target[DP[th % caseCount] - 1] -= number;
+            } else {
+                drop(1, number, th, target);
+            }
+            if (target[DP[th % caseCount] - 1] < 0) {
+                target[DP[th % caseCount] - 1] += number;
+                continue;
+            }
+            drops.add(number);
+            solve(th + 1, target, drops);
+
+            target[DP[th % caseCount] - 1] += number;
+            drops.removeLast();
         }
 
-        falls.add(1);
-        falls.add(2);
-        falls.add(3);
+    }
+
+    private void drop(int curNode, int number, int th, int[] target) {
+        Queue<Integer> nextNodes = tree.get(curNode);
+        if (nextNodes.isEmpty()) {
+            target[curNode - 1] -= number;
+            DP[th] = curNode;
+            return;
+        }
+        int nextNode = nextNodes.poll();
+        nextNodes.add(nextNode);
+        drop(nextNode, number, th, target);
     }
 
     private void updateAnswer(List<Integer> falls) {
         if (answer.get(0) == -1) {
             answer = new ArrayList<>(falls);
+            size = answer.size();
             return;
         }
 
         if (answer.size() > falls.size()) {
             answer = new ArrayList<>(falls);
+            size = answer.size();
             return;
         }
 
@@ -72,6 +115,7 @@ public class Solution7 {
             for (int i = 0; i < answer.size(); i++) {
                 if (answer.get(i) > falls.get(i)) {
                     answer = new ArrayList<>(falls);
+                    size = answer.size();
                     return;
                 } else if (answer.get(i) < falls.get(i)) {
                     return;
