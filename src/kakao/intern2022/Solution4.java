@@ -1,100 +1,121 @@
 package kakao.intern2022;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 // https://school.programmers.co.kr/learn/courses/30/lessons/118669?language=java
+// Dijkstra
 public class Solution4 {
     public static void main(String[] args) {
         Solution4 s = new Solution4();
         System.out.println(Arrays.toString(s.solution(7,
-                new int[][]{
-                        {1, 2, 5}, {1, 4, 1}, {2, 3, 1}, {2, 6, 7}, {4, 5, 1}, {5, 6, 1}, {6, 7, 1}
-                },
-                new int[]{3, 7},
-                new int[]{1, 5})));
+                new int[][]{{1, 2, 3}, {2, 3, 5}, {2, 4, 2}, {2, 5, 4}, {3, 4, 4}, {4, 5, 3}, {4, 6, 1}, {5, 6, 1}},
+                new int[]{1, 3},
+                new int[]{5})));
+        System.out.println(Arrays.toString(s.solution(7,
+                new int[][]{{1, 4, 4}, {1, 6, 1}, {1, 7, 3}, {2, 5, 2}, {3, 7, 4}, {5, 6, 6}},
+                new int[]{1},
+                new int[]{2,3,4})));
     }
 
-    static int MIN_INTENSITY = 10_000_001;
-    static int SUMMIT = 50_001;
-    static int[] SUMMITS;
-    static int[] GATES;
+    private static final int INF = 123456789;
 
-    /**
-     * @param n       지점 수
-     * @param paths   등산로 정보
-     * @param gates   출입구
-     * @param summits 정상
-     * @return intensity가 최소가 되는 등산코스
-     */
     public int[] solution(int n, int[][] paths, int[] gates, int[] summits) {
-        SUMMITS = summits;
-        GATES = gates;
+        Set<Integer> isGate = new HashSet<>();
+        Set<Integer> isSummit = new HashSet<>();
+        List<List<Path>> graph = new ArrayList<>();
 
-        LinkedList<LinkedList<int[]>> graph = new LinkedList<>();
+        for (int gate : gates) {
+            isGate.add(gate);
+        }
 
-        for (int i = 0; i < n; i++) {
-            graph.add(new LinkedList<>());
+        for (int summit : summits) {
+            isSummit.add(summit);
+        }
+
+        for (int i = 0; i <= n; i++) {
+            graph.add(new ArrayList<>());
         }
 
         for (int[] path : paths) {
-            int p1 = path[0] - 1;
-            int p2 = path[1] - 1;
+            int from = path[0];
+            int to = path[1];
             int w = path[2];
 
-            graph.get(p1).add(new int[]{p2, w});
-            graph.get(p2).add(new int[]{p1, w});
-        }
-
-        for (int gate : gates) {
-            boolean[] visited = new boolean[n];
-            visited[gate - 1] = true;
-            search(gate - 1, visited, 0, graph);
-        }
-
-        return new int[]{SUMMIT + 1, MIN_INTENSITY};
-    }
-
-    private void search(int cur, boolean[] visited, int maxIntensity, LinkedList<LinkedList<int[]>> graph) {
-
-        if (isSummit(cur)) {
-            if (maxIntensity < MIN_INTENSITY) {
-                MIN_INTENSITY = maxIntensity;
-                SUMMIT = cur;
-            } else if (maxIntensity == MIN_INTENSITY) {
-                SUMMIT = Math.min(cur, SUMMIT);
+            if (!isSummit.contains(from) && !isGate.contains(to)) {
+                graph.get(from).add(new Path(to, w));
             }
-            return;
+
+            if (!isSummit.contains(to) && !isGate.contains(from)) {
+                graph.get(to).add(new Path(from, w));
+            }
         }
 
-        for (int[] node : graph.get(cur)) {
-            int next = node[0];
-            int intensity = node[1];
-
-            if (visited[next]) continue;
-
-            if (isGate(next)) continue;
-
-            visited[next] = true;
-            search(next, visited, Math.max(maxIntensity, intensity), graph);
-            visited[next] = false;
+        int[] dp = new int[n + 1];
+        boolean[] visited = new boolean[n + 1];
+        Arrays.fill(dp, INF);
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        for (int gate : gates) {
+            dp[gate] = 0;
+            pq.add(new Node(gate, 0));
         }
 
+        while (!pq.isEmpty()) {
+            Node cur = pq.poll();
+            visited[cur.node] = true;
+            if (isSummit.contains(cur.node)) continue;  // 가지치기: 정상에서 나가는 간선은 없음
+            if (cur.w > dp[cur.node]) continue;         // 가지치기: 현재 노드까지의 가중치가 이미 최소로 갱신된 상태라 이전에 갱신했던 경우는 필요 없음
+            for (Path next : graph.get(cur.node)) {
+                if (visited[next.to]) continue;
+                int intensity = Math.max(dp[cur.node], next.w);
+                dp[next.to] = Math.min(dp[next.to], intensity);
+                pq.offer(new Node(next.to, next.w));
+            }
+        }
+
+        int minIntensity = INF;
+        int goal = 123456789;
+        for (int summit : summits) {
+            if (dp[summit] == INF) continue;
+            if (minIntensity == dp[summit]) {
+                goal = Math.min(goal, summit);
+            }
+            if (minIntensity > dp[summit]) {
+                minIntensity = dp[summit];
+                goal = summit;
+            }
+        }
+
+        return new int[]{goal, minIntensity};
     }
 
-    private boolean isSummit(int point) {
-        for (int summit : SUMMITS) {
-            if (point == summit - 1) return true;
-        }
+    static class Path {
+        int to;
+        int w;
 
-        return false;
+        public Path(int to, int w) {
+            this.to = to;
+            this.w = w;
+        }
     }
 
-    private boolean isGate(int point) {
-        for (int gate : GATES) {
-            if (point == gate - 1) return true;
+    static class Node implements Comparable<Node> {
+        int node;
+        int w;
+
+
+        public Node(int node, int w) {
+            this.node = node;
+            this.w = w;
         }
 
-        return false;
+        @Override
+        public int compareTo(Node o) {
+            return this.w - o.w;
+        }
     }
 }
