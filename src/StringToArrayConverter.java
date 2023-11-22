@@ -1,29 +1,7 @@
-import java.util.StringTokenizer;
-
-public class StringToArrayConverter<V> {
-    private final String stringArray;
-    private int dimension;
-
-    public StringToArrayConverter(String stringArray) {
-        this.stringArray = stringArray;
-        this.dimension = this.getDimension();
+public class StringToArrayConverter {
+    public static void main(String[] args) {
+        String array = "[[1, 4, 4], [1, 6, 1], [1, 7, 3], [2, 5, 2], [3, 7, 4], [5, 6, 6]]";
+        String replace = array.replace("[", "{").replace("]", "}");
+        System.out.println(replace);
     }
-
-    private int getDimension() {
-        int count = 0;
-        String squareBracket = "[";
-        StringTokenizer st = new StringTokenizer(this.stringArray);
-
-        while(st.hasMoreTokens()) {
-
-            if (st.nextToken().equals(squareBracket)) {
-                count++;
-            } else {
-                return count;
-            }
-        }
-
-        return count;
-    }
-
 }
