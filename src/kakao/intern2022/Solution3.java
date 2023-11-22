@@ -5,41 +5,58 @@ package kakao.intern2022;
 public class Solution3 {
     public static void main(String[] args) {
         Solution3 s = new Solution3();
-        System.out.println(s.solution(10, 10, new int[][]{{10, 15, 2, 1, 2}, {20, 20, 3, 3, 4}}));
+        int solution = s.solution(0, 0, new int[][]{{0, 0, 30, 2, 1},{150, 150, 30, 30, 100}});
+        System.out.println(solution);
     }
 
+    private static final int INF = 123456789;
+
+    private static int[][] dp = new int[152][152];
+
     public int solution(int alp, int cop, int[][] problems) {
-        int maxAlp = 0;
-        int maxCop = 0;
-
-        int[][] dp = new int[151][151];
-
-        // 무한대로 초기화
-        for (int i = 0; i < dp.length; i++) {
-            for (int j = 0; j < dp[0].length; j++) {
-                int cost = 0;
-                if (alp < i) cost += i - alp;
-                if (cop < j) cost += j - cop;
-                dp[i][j] = cost;
-            }
-        }
-
+        // 주어진 능력이 더 크다면 maxAlp, maxCop가 alp, cop일 것임
+        int maxAlp = alp;
+        int maxCop = cop;
         for (int[] problem : problems) {
             int reqAlp = problem[0];
             int reqCop = problem[1];
-            int alpRwd = problem[2];
-            int copRwd = problem[3];
-            int cost = problem[4];
+            maxAlp = Math.max(reqAlp, maxAlp);
+            maxCop = Math.max(reqCop, maxCop);
+        }
 
-            maxAlp = Math.max(maxAlp, reqAlp);
-            maxCop = Math.max(maxCop, reqCop);
+        // 무한대로 초기화
+        for (int i = 0; i <= 150; i++) {
+            for (int j = 0; j <= 150; j++) {
+                if (i <= alp && j <= cop) continue;
+                dp[i][j] = INF;
+            }
+        }
 
-            for (int i = reqAlp; i < dp.length - alpRwd; i++) {
-                for (int j = reqCop; j < dp[0].length - copRwd; j++) {
-                    dp[i + alpRwd][j + copRwd] = Math.min(
-                            Math.min(dp[i + alpRwd][j + copRwd], cost + dp[i][j]),
-                            Math.min(dp[i + alpRwd - 1][j + copRwd] + 1, dp[i + alpRwd][j + copRwd - 1] + 1)
-                    );
+        for (int i = alp; i <= 150 ; i++) {
+            for (int j = cop; j <= 150; j++) {
+                dp[i + 1][j] = Math.min(dp[i][j] + 1, dp[i + 1][j]);
+                dp[i][j + 1] = Math.min(dp[i][j] + 1, dp[i][j + 1]);
+                for (int[] problem : problems) {
+                    int reqAlp = problem[0];
+                    int reqCop = problem[1];
+                    int alpRwd = problem[2];
+                    int copRwd = problem[3];
+                    int cost = problem[4];
+
+                    if (i < reqAlp) continue;
+                    if (j < reqCop) continue;
+
+
+                    int totalAlp = i + alpRwd;
+                    int totalCop = j + copRwd;
+                    if (totalAlp > maxAlp) {
+                        totalAlp = maxAlp;
+                    }
+                    if (totalCop > maxCop) {
+                        totalCop = maxCop;
+                    }
+
+                    dp[totalAlp][totalCop] = Math.min(dp[i][j] + cost, dp[totalAlp][totalCop]);
                 }
             }
         }
