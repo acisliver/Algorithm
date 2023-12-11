@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-import static java.lang.System.in;
-
 // 물통
 // https://www.acmicpc.net/problem/14867
 public class N14867 {
@@ -14,10 +12,10 @@ public class N14867 {
     static final int INF = 123456789;
     static int A, B, DESIRE_A, DESIRE_B;
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int[] input = Arrays.stream(br.readLine().split(" "))
-                        .mapToInt(Integer::parseInt)
-                        .toArray();
+                .mapToInt(Integer::parseInt)
+                .toArray();
         A = input[0];
         B = input[1];
         DESIRE_A = input[2];
@@ -77,7 +75,6 @@ public class N14867 {
         visited.put(state, d + 1);
     }
 
-    // 버전이 맞다면 record 사용이 적합
     private static final class State {
         private final int a;
         private final int b;
