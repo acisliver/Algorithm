@@ -10,82 +10,31 @@ public class N2402 {
     }
 
     public int mostBooked(int n, int[][] meetings) {
-        int time = 0;
-        int[] rooms = new int[n];
+        long[] rooms = new long[n];
         int[] freq = new int[n];
-        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(m -> m[0]));
-        Queue<int[]> queue = new LinkedList<>();
+        Arrays.sort(meetings, Comparator.comparingInt((m) -> m[0]));
 
-        pq.addAll(Arrays.asList(meetings));
-
-        while (!pq.isEmpty()) {
-            System.out.printf("time: %d\n", time);
-            // 회의 대기열 등록
-            while (!pq.isEmpty()) {
-                int[] meeting = pq.peek();
-                if (meeting[0] <= time) {
-                    queue.add(pq.poll());
-                } else {
+        for (int[] meeting : meetings) {
+            int start = meeting[0];
+            int end = meeting[1];
+            boolean isAllocated = false;
+            int minIdx = -1;
+            long minEndTime = Long.MAX_VALUE;
+            for (int i = 0; i < n; i++) {
+                if (rooms[i] < minEndTime) {
+                    minIdx = i;
+                    minEndTime = rooms[i];
+                }
+                if (rooms[i] <= start) {
+                    isAllocated = true;
+                    freq[i] += 1;
+                    rooms[i] = end;
                     break;
                 }
             }
-
-            // 현재 시각에 미팅이 없다면 가장 빨리 회의를 시작하는 시간으로 이동
-            if (queue.isEmpty()) {
-                time = pq.peek()[0];
-                continue;
-            }
-
-            // 대기중인 회의 빈 방에 넣기
-            int[] meeting = queue.peek();
-            boolean isAllocated = false;
-            int endTime = Integer.MAX_VALUE;
-            for (int j = 0; j < n; j++) {
-                if (rooms[j] <= time) {
-                    queue.poll();
-                    rooms[j] = time + meeting[1] - meeting[0];
-                    freq[j] += 1;
-                    isAllocated = true;
-                    System.out.printf("room: %d, start: %d, end: %d\n", j, time, rooms[j]);
-                    if (queue.isEmpty()) {
-                        break;
-                    }
-                    meeting = queue.peek();
-                }
-                endTime = Math.min(endTime, rooms[j]);
-            }
-
             if (!isAllocated) {
-                time = endTime;
-            } else {
-                time += 1;
-            }
-
-        }
-
-        while (!queue.isEmpty()) {
-            int[] meeting = queue.peek();
-            boolean isAllocated = false;
-            int endTime = Integer.MAX_VALUE;
-            for (int j = 0; j < n; j++) {
-                if (rooms[j] <= time) {
-                    queue.poll();
-                    rooms[j] = time + meeting[1] - meeting[0];
-                    freq[j] += 1;
-                    isAllocated = true;
-                    System.out.printf("room: %d, start: %d, end: %d\n", j, time, rooms[j]);
-                    if (queue.isEmpty()) {
-                        break;
-                    }
-                    meeting = queue.peek();
-                }
-                endTime = Math.min(endTime, rooms[j]);
-            }
-
-            if (!isAllocated) {
-                time = endTime;
-            } else {
-                time += 1;
+                freq[minIdx] += 1;
+                rooms[minIdx] += (end - start);
             }
         }
 
