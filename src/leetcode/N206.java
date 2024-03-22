@@ -5,12 +5,12 @@ public class N206 {
     public ListNode reverseList(ListNode head) {
         ListNode prev = null;
         ListNode curr = head;
-        ListNode nextNode = null;
+        ListNode next = null;
         while (curr != null) {
-            nextNode = curr.next;
+            next = curr.next;
             curr.next = prev;
             prev = curr;
-            curr = nextNode;
+            curr = next;
         }
         return prev;
     }
