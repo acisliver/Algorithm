@@ -35,4 +35,26 @@ public class N2962 {
 
         return answer;
     }
+
+    public long countSubarrays2(int[] nums, int k) {
+        long answer = 0;
+        int max = 0;
+        int l = 0;
+        int r = 0;
+        for (int num : nums) {
+            max = Math.max(num, max);
+        }
+
+        while(r < nums.length) {
+            k -= nums[r] == max ? 1 : 0;
+            r += 1;
+            while (k == 0) {
+                k += nums[l] == max ? 1 : 0;
+                l += 1;
+            }
+            answer += l;
+        }
+
+        return answer;
+    }
 }
